@@ -33,6 +33,21 @@
     ```sql
     CREATE TABLE categories (
         id INT NOT NULL PRIMARY KEY,
-        name VARCHAR(100) NOT NULL
+        category_name VARCHAR(100) NOT NULL
     );
+    ```
+
+5. 카테고리 아이디 외래 키 설정
+    ```sql
+    /*인덱스 추가*/
+    ALTER TABLE 'Bookshop'.'books'
+    ADD INDEX 'category_id_idx' {'category_id' ASC } VISIBLE;
+
+    /*외래 키 추가*/
+    ALTER TABLE 'Bookshop'.'books'
+    ADD CONSTRAINT 'category_id'
+    FOREIGN KEY {'category_id'}
+    REFERENCES 'Bookshop'.'category' {'id'}
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
     ```
