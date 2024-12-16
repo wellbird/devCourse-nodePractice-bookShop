@@ -32,7 +32,7 @@
 4. categories 테이블 생성
     ```sql
     CREATE TABLE categories (
-        id INT NOT NULL PRIMARY KEY,
+        category_id INT NOT NULL PRIMARY KEY,
         category_name VARCHAR(100) NOT NULL
     );
     ```
@@ -40,14 +40,43 @@
 5. 카테고리 아이디 외래 키 설정
     ```sql
     /*인덱스 추가*/
-    ALTER TABLE 'Bookshop'.'books'
-    ADD INDEX 'category_id_idx' {'category_id' ASC } VISIBLE;
+    ALTER TABLE books
+    ADD INDEX category_id_idx (category_id ASC) VISIBLE;
 
     /*외래 키 추가*/
-    ALTER TABLE 'Bookshop'.'books'
-    ADD CONSTRAINT 'category_id'
-    FOREIGN KEY {'category_id'}
-    REFERENCES 'Bookshop'.'category' {'id'}
+    ALTER TABLE books
+    ADD CONSTRAINT category_id
+    FOREIGN KEY (category_id)
+    REFERENCES category(category_id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    ```
+
+6. likes 테이블 생성
+    ```sql
+    CREATE TABLE likes (
+        user_id INTEGER
+        liked_book_id INTEGER
+    );
+    ```
+
+7. 좋아요 외래 키 설정
+    ```sql
+    /*인덱스 추가*/
+    ALTER TABLE likes
+    ADD INDEX user_id_idx (user_id ASC) VISIBLE,
+    ADD INDEX liked_book_id_idx (liked_book_id ASC) VISIBLE;
+
+    /*외래 키 추가가*/
+    ALTER TABLE likes
+    ADD CONSTRAINT user_id
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    ADD CONSTRAINT liked_book_id
+    FOREIGN KEY (liked_book_id)
+    REFERENCES books(id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
     ```
