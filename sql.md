@@ -67,7 +67,7 @@
     ADD INDEX user_id_idx (user_id ASC) VISIBLE,
     ADD INDEX liked_book_id_idx (liked_book_id ASC) VISIBLE;
 
-    /*외래 키 추가가*/
+    /*외래 키 추가*/
     ALTER TABLE likes
     ADD CONSTRAINT user_id
     FOREIGN KEY (user_id)
@@ -77,6 +77,37 @@
     ADD CONSTRAINT liked_book_id
     FOREIGN KEY (liked_book_id)
     REFERENCES books(id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION;
+    ```
+
+8. cart_items 테이블 생성
+    ```sql
+    CREATE TABLE cart_items (
+        id INTEGER NOT NULL PRIMARY KEY,
+        book_id INTEGER NOT NULL,
+        quantity INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+    );
+    ```
+
+8. 장바구니 외래 키 설정
+    ```sql
+    /*인덱스 추가*/
+    ALTER TABLE cart_items
+    ADD INDEX cart_items_book_id_idx (book_id ASC) VISIBLE,
+    ADD INDEX cart_items_user_id_idx (user_id ASC) VISIBLE;
+
+    /*외래 키 추가*/
+    ALTER TABLE cart_items
+    ADD CONSTRAINT fk_cart_items_books_id
+    FOREIGN KEY (book_id)
+    REFERENCES books(id)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+    ADD CONSTRAINT fk_cart_items_users_id
+    FOREIGN KEY (user_id)
+    REFERENCES users(id)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION;
     ```
