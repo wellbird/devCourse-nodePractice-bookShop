@@ -19,7 +19,8 @@ const signup = (req, res) => {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
-    return res.status(StatusCodes.CREATED).json(results);
+    if (results.affectedRows === 1) return res.status(StatusCodes.CREATED).json(results);
+    return res.status(StatusCodes.BAD_REQUEST).end();
   });
 };
 
@@ -36,6 +37,7 @@ const signin = (req, res) => {
     if (loginUser && loginUser.password === hashPassword) {
       const token = jwt.sign(
         {
+          id: loginUser.id,
           email: loginUser.email,
         },
         process.env.PRIVATE_KEY,

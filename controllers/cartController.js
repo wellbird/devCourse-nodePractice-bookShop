@@ -1,11 +1,27 @@
+const jwt = require('jsonwebtoken');
 const conn = require('../mairadb');
 const { StatusCodes } = require('http-status-codes');
+const ensureAuthorization = require('../auth');
 
 const addToCart = (req, res) => {
-  const { bookId, quantity, userId } = req.body;
+  const { bookId, quantity } = req.body;
+
+  const decodedJWT = ensureAuthorization(req, res);
+
+  if (decodedJWT instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: '로그인 세션이 만료되었습니다.',
+    });
+  }
+
+  if (decodedJWT instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: '잘못된 토큰입니다.',
+    });
+  }
 
   let sql = 'INSERT INTO cart_items (book_id, quantity, user_id) VALUES (?, ?, ?)';
-  let values = [bookId, quantity, userId];
+  let values = [bookId, quantity, decodedJWT.id];
   conn.query(sql, values, (err, results) => {
     if (err) {
       console.log(err);
@@ -16,12 +32,32 @@ const addToCart = (req, res) => {
 };
 
 const getCartItems = (req, res) => {
-  const { user_id, selected } = req.body;
+  const { selected } = req.body;
+
+  const decodedJWT = ensureAuthorization(req, res);
+
+  if (decodedJWT instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: '로그인 세션이 만료되었습니다.',
+    });
+  }
+
+  if (decodedJWT instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: '잘못된 토큰입니다.',
+    });
+  }
+
   let sql = `SELECT cart_items.id, book_id, title, summary, quantity, price
                   FROM cart_items LEFT JOIN books
                   ON cart_items.book_id = books.id
-                  WHERE user_id=? AND cart_items.id IN (?)`;
-  let values = [user_id, selected];
+                  WHERE user_id=?`;
+  let values = [decodedJWT.id];
+
+  if (selected) {
+    sql += ' AND cart_items.id IN (?)';
+    values.push(selected);
+  }
   conn.query(sql, values, (err, results) => {
     if (err) {
       console.log(err);
@@ -32,9 +68,23 @@ const getCartItems = (req, res) => {
 };
 
 const removeCartItem = (req, res) => {
-  const { id } = req.params;
+  const decodedJWT = ensureAuthorization(req, res);
+
+  if (decodedJWT instanceof jwt.TokenExpiredError) {
+    return res.status(StatusCodes.UNAUTHORIZED).json({
+      message: '로그인 세션이 만료되었습니다.',
+    });
+  }
+
+  if (decodedJWT instanceof jwt.JsonWebTokenError) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      message: '잘못된 토큰입니다.',
+    });
+  }
+
+  const cartId = req.params.id;
   let sql = 'DELETE FROM cart_items WHERE id=?';
-  conn.query(sql, id, (err, results) => {
+  conn.query(sql, cartId, (err, results) => {
     if (err) {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
