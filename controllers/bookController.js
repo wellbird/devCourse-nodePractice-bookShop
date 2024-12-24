@@ -39,14 +39,14 @@ const allBooks = (req, res) => {
     } else return res.status(StatusCodes.NOT_FOUND).end();
   });
 
-  sql += ' SELECT found_rows()';
+  sql = 'SELECT found_rows()';
   conn.query(sql, values, (err, results) => {
     if (err) {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
     let pagination = {};
-    pagination.currentPage = parseInt(currentPage);
+    pagination.currentPage = parseInt(curPage);
     pagination.totalCount = results[0]['found_rows()'];
 
     allBooksRes.pagination = pagination;
