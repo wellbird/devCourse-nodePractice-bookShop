@@ -1,10 +1,12 @@
 const express = require('express');
 const app = express();
+const cors = require('cors');
 
 const dotenv = require('dotenv');
 dotenv.config();
 
 app.use(express.json());
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 
 app.listen(process.env.PORT);
 
