@@ -9,7 +9,9 @@ const signup = (req, res) => {
   const { email, password } = req.body;
 
   const salt = crypto.randomBytes(64).toString('base64');
-  const hashPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
+  const hashPassword = crypto
+    .pbkdf2Sync(password, salt, 10000, 64, 'sha512')
+    .toString('base64');
 
   let sql = 'INSERT INTO users (email, password, salt) VALUES (?, ?, ?)';
   let values = [email, hashPassword, salt];
@@ -19,7 +21,8 @@ const signup = (req, res) => {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
-    if (results.affectedRows === 1) return res.status(StatusCodes.CREATED).json(results);
+    if (results.affectedRows === 1)
+      return res.status(StatusCodes.CREATED).json(results);
     return res.status(StatusCodes.BAD_REQUEST).end();
   });
 };
@@ -33,7 +36,9 @@ const signin = (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
     const loginUser = results[0];
-    const hashPassword = crypto.pbkdf2Sync(password, loginUser.salt, 10000, 64, 'sha512').toString('base64');
+    const hashPassword = crypto
+      .pbkdf2Sync(password, loginUser.salt, 10000, 64, 'sha512')
+      .toString('base64');
     if (loginUser && loginUser.password === hashPassword) {
       const token = jwt.sign(
         {
@@ -49,7 +54,7 @@ const signin = (req, res) => {
       res.cookie('token', token, {
         httpOnly: true,
       });
-      return res.status(StatusCodes.OK).json(results);
+      return res.status(StatusCodes.OK).json({ ...results[0], token: token });
     }
     return res.status(StatusCodes.UNAUTHORIZED).end();
   });
@@ -77,7 +82,9 @@ const passwordReset = (req, res) => {
   const { email, password } = req.body;
 
   const salt = crypto.randomBytes(64).toString('base64');
-  const hashPassword = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('base64');
+  const hashPassword = crypto
+    .pbkdf2Sync(password, salt, 10000, 64, 'sha512')
+    .toString('base64');
 
   let sql = 'UPDATE users SET password = ?, salt = ? WHERE email = ?';
   let values = [hashPassword, salt, email];
@@ -86,7 +93,8 @@ const passwordReset = (req, res) => {
       console.log(err);
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
-    if (results.affectedRows === 0) return res.status(StatusCodes.BAD_REQUEST).end();
+    if (results.affectedRows === 0)
+      return res.status(StatusCodes.BAD_REQUEST).end();
     return res.status(StatusCodes.OK).json(results);
   });
 };
