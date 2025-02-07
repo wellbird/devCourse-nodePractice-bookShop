@@ -5,21 +5,23 @@ const { StatusCodes } = require('http-status-codes');
 
 const allBooks = (req, res) => {
   let allBooksRes = {};
-  let { categoryId, newBook, limit, curPage } = req.query;
+  let { category_id, news, limit = 8, currentPage = 1 } = req.query;
 
   let sql =
     'SELECT SQL_CALC_FOUND_ROWS *, (SELECT count(*) FROM likes WHERE books.id=liked_book_id) AS likes FROM books';
-  let offset = limit * (curPage - 1);
+  let offset = limit * (currentPage - 1);
   let values = [];
 
-  if (categoryId && newBook) {
-    sql += ' WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()';
-    values.push(categoryId);
-  } else if (categoryId) {
+  if (category_id && news) {
+    sql +=
+      ' WHERE category_id = ? AND pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()';
+    values.push(category_id);
+  } else if (category_id) {
     sql += ' WHERE category_id = ?';
-    values.push(categoryId);
-  } else if (newBook) {
-    sql += ' WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()';
+    values.push(category_id);
+  } else if (news) {
+    sql +=
+      ' WHERE pub_date BETWEEN DATE_SUB(NOW(), INTERVAL 1 MONTH) AND NOW()';
   }
 
   sql += ' LIMIT ? OFFSET ?';
@@ -46,7 +48,7 @@ const allBooks = (req, res) => {
       return res.status(StatusCodes.BAD_REQUEST).end();
     }
     let pagination = {};
-    pagination.currentPage = parseInt(curPage);
+    pagination.currentPage = parseInt(currentPage);
     pagination.totalCount = results[0]['found_rows()'];
 
     allBooksRes.pagination = pagination;
