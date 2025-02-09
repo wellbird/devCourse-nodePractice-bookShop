@@ -47,7 +47,7 @@ const signin = (req, res) => {
         },
         process.env.PRIVATE_KEY,
         {
-          expiresIn: '5m',
+          expiresIn: '3h',
           issuer: 'devCourse',
         }
       );
