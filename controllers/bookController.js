@@ -77,7 +77,7 @@ const bookDetail = (req, res) => {
     let sql = `SELECT *, 
             (SELECT count(*) FROM likes WHERE books.id=liked_book_id) AS likes, 
             FROM books 
-            LEFT JOIN category ON books.category_id = category.category_id WHERE id = ?`;
+            LEFT JOIN categories ON books.category_id = categories.category_id WHERE id = ?`;
     conn.query(sql, bookId, (err, results) => {
       if (err) {
         console.log(err);
@@ -94,7 +94,7 @@ const bookDetail = (req, res) => {
             (SELECT count(*) FROM likes WHERE books.id=liked_book_id) AS likes, 
             (SELECT EXISTS (SELECT * FROM likes WHERE user_id = ? AND liked_book_id = ?)) AS liked 
             FROM books 
-            LEFT JOIN category ON books.category_id = category.category_id WHERE id = ?`;
+            LEFT JOIN categories ON books.category_id = categories.category_id WHERE id = ?`;
   conn.query(sql, [decodedJWT.id, bookId, bookId], (err, results) => {
     if (err) {
       console.log(err);
