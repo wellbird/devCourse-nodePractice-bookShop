@@ -24,28 +24,37 @@ const order = async (req, res) => {
       message: '잘못된 토큰입니다.',
     });
   }
-  const { items, delivery, totalQuantity, totalPrice, firstBookTitle } = req.body;
+  const { items, delivery, totalQuantity, totalPrice, firstBookTitle } =
+    req.body;
 
-  let sql = 'INSERT INTO delivery (address, receiver, contact) VALUES (?, ?, ?)';
+  let sql =
+    'INSERT INTO delivery (address, receiver, contact) VALUES (?, ?, ?)';
   let values = [delivery.address, delivery.receiver, delivery.contact];
 
   let [results] = await conn.execute(sql, values);
 
   let deliveryId = results.insertId;
 
-  sql = 'INSERT INTO orders (book_title, total_quantity, total_price, user_id, delivery_id) VALUES (?, ?, ?, ?, ?)';
-  values = [firstBookTitle, totalQuantity, totalPrice, decodedJWT.id, deliveryId];
+  sql =
+    'INSERT INTO orders (book_title, total_quantity, total_price, user_id, delivery_id) VALUES (?, ?, ?, ?, ?)';
+  values = [
+    firstBookTitle,
+    totalQuantity,
+    totalPrice,
+    decodedJWT.id,
+    deliveryId,
+  ];
   [results] = await conn.execute(sql, values);
 
   let orderId = results.insertId;
 
-  sql = `SELECT book_id, quantity FROM cart_items WHERE IN (?)`;
+  sql = `SELECT book_id, quantity FROM cart_items WHERE cart_items.id IN (?)`;
   let [orderItems, fields] = await conn.query(sql, [items]);
 
   sql = 'INSERT INTO ordered_book (order_id, book_id, quantity) VALUES ?';
   values = [];
   orderItems.forEach((item) => {
-    values.push([orderId, item.bookId, item.quantity]);
+    values.push([orderId, item.book_id, item.quantity]);
   });
   results = await conn.query(sql, [values]);
 

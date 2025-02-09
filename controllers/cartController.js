@@ -4,7 +4,7 @@ const { StatusCodes } = require('http-status-codes');
 const ensureAuthorization = require('../auth');
 
 const addToCart = (req, res) => {
-  const { bookId, quantity } = req.body;
+  const { book_id, quantity } = req.body;
 
   const decodedJWT = ensureAuthorization(req, res);
 
@@ -20,8 +20,9 @@ const addToCart = (req, res) => {
     });
   }
 
-  let sql = 'INSERT INTO cart_items (book_id, quantity, user_id) VALUES (?, ?, ?)';
-  let values = [bookId, quantity, decodedJWT.id];
+  let sql =
+    'INSERT INTO cart_items (book_id, quantity, user_id) VALUES (?, ?, ?)';
+  let values = [book_id, quantity, decodedJWT.id];
   conn.query(sql, values, (err, results) => {
     if (err) {
       console.log(err);
